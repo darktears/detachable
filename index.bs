@@ -1,0 +1,172 @@
+<pre class="metadata">
+Title: Detachable Dock
+Level: 1
+Status: ED
+ED: https://darktears.github.io/detachable/
+Shortname: detachabledock
+Editor: Anssi Kostiainen 41974, Intel Corporation, https://intel.com/
+Editor: Alexis Menard, Intel Corporation, https://intel.com/
+Group: dap
+Abstract:
+  This specification defines a sensor interface for
+  obtaining information about the state of docked keyboard or base.
+Version History: https://github.com/darktears/detachable/commits/gh-pages/index.bs
+!Bug Reports: <a href="https://www.github.com/darktears/detachable/issues/new">via the darktears/detachable repository on GitHub</a>
+Indent: 2
+Repository: darktears/detachable
+Markup Shorthands: markdown on
+Inline Github Issues: true
+!Test Suite: <a href="https://github.com/w3c/web-platform-tests/tree/master/detachable">web-platform-tests on GitHub</a>
+Boilerplate: omit issues-index, omit conformance
+Default Biblio Status: current
+Note class: note
+</pre>
+<pre class="anchors">
+urlPrefix: https://w3c.github.io/permissions/; spec: PERMISSIONS
+  type: dfn
+    text: permission; url: idl-def-Permission
+    text: associated PermissionDescriptor;  url: dfn-associated-permissiondescriptor
+urlPrefix: https://w3c.github.io/sensors; spec: GENERIC-SENSOR
+  type: dfn
+    text: high-level
+    text: sensor subclass
+    text: sensorreading subclass
+    text: default sensor
+    text: supported reporting mode; url: supported-reporting-modes
+    text: auto
+    text: construct a sensor object; url: construct-sensor-object
+</pre>
+
+Introduction {#intro}
+============
+
+The DetachableDock API extends the Generic Sensor API [[GENERIC-SENSOR]]
+interface to provide information about the state of a dock connected to
+a device. It provides information on whether the dock, typically keyboard
+and trackpad is currently connected or has been detached by the user.
+
+Examples {#examples}
+========
+
+<div class="example">
+    <pre highlight="js">
+    let sensor = new DetachableDock();
+    sensor.start();
+
+    sensor.onchange = event => {
+        console.log("Dock is attached ?  " + event.reading.attached);
+    }
+
+    sensor.onerror = event => console.log(event.error.name, event.error.message);
+    </pre>
+</div>
+
+Security and Privacy Considerations {#security-and-privacy}
+===================================
+
+There are no specific security and privacy considerations
+beyond those described in the Generic Sensor API [[!GENERIC-SENSOR]].
+
+Model {#model}
+=====
+
+The DetachableDock's associated <a>Sensor subclass</a>
+is the {{DetachableDock}} class.
+
+The Detachable's associated <a>SensorReading subclass</a>
+is the {{DetachableDockReading}} class.
+
+The DetachableDock has a <a>default sensor</a>, which tells
+if the dock is currently attached or detached from the main device.
+
+The DetachableDock has a single <a>supported reporting mode</a>
+which is "<a>implementation specific</a>". It will report a 
+state change when the dock is detached or attached.
+
+The DetachableDock's <a>permission</a> name is "detachable dock".
+It has no <a>associated PermissionDescriptor</a>.
+
+The DetachableDock has an associated abstract operation
+to <dfn>retrieve the sensor permission</dfn> which
+must simply return a <a>permission</a> whose name is "detachable dock".
+
+The DetachableDock has an associated abstract operation
+to <dfn lt="Construct SensorReading Object">construct a SensorReading object</dfn>
+which creates a new {{DetachableDockReading}} object and sets its
+<a attribute for="DetachableDockReading">attached</a>
+to zero.
+
+API {#api}
+===
+
+The DetachableDock Interface {#detachable-dock-interface}
+--------------------------------
+
+<pre class="idl">
+  [Constructor(optional DetachableDockOptions DetachableDockOptions)]
+  interface DetachableDock : Sensor {
+    readonly attribute DetachableDockReading? reading;
+  };
+</pre>
+
+To <dfn>Construct an DetachableDock Object</dfn> the user agent must invoke
+the <a>construct a Sensor object</a> abstract operation.
+
+The DetachableDockOptions Dictionary {#detachable-dock-options-dictionary}
+--------------------------------
+
+<pre class="idl">
+  dictionary DetachableDockOptions :  SensorOptions  {
+  };
+</pre>
+
+The DetachableDockReading Interface {#detachable-dock-reading-interface}
+---------------------------------------
+
+<pre class="idl">
+  [Constructor(optional DetachableDockReadingInit DetachableDockReadingInit)]
+  interface DetachableDockReading : SensorReading {
+      readonly attribute boolean attached;
+  };
+
+  dictionary DetachableDockReadingInit {
+      boolean attached = true;
+  };
+</pre>
+
+### The DetachableDock attributes ### {#detachable-dock-attributes}
+
+### The DetachableDockReading constructor ### {#detachable-dock-reading-constructor}
+
+The DetachableDockReading constructor accepts {{DetachableDockReadingInit}} dictionary that is used
+for initialization of {{DetachableDockReading}} attributes.
+
+### The DetachableDockReading attributes ### {#detachable-dock-reading-attributes}
+
+The <a attribute for="DetachableDockReading">attached</a> attribute of the {{DetachableDockReading}}
+interface represents if the dock is attached.
+
+Acknowledgements {#acknowledgements}
+================
+
+Tobie Langel for the work on Generic Sensor API.
+
+Conformance {#conformance}
+===========
+
+Conformance requirements are expressed with a combination of
+descriptive assertions and RFC 2119 terminology. The key words "MUST",
+"MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT",
+"RECOMMENDED", "MAY", and "OPTIONAL" in the normative parts of this
+document are to be interpreted as described in RFC 2119.
+However, for readability, these words do not appear in all uppercase
+letters in this specification.
+
+All of the text of this specification is normative except sections
+explicitly marked as non-normative, examples, and notes. [[!RFC2119]]
+
+A <dfn>conformant user agent</dfn> must implement all the requirements
+listed in this specification that are applicable to user agents.
+
+The IDL fragments in this specification must be interpreted as required for
+conforming IDL fragments, as described in the Web IDL specification. [[!WEBIDL]]
